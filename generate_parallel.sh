@@ -1,14 +1,15 @@
 #!/bin/sh
 
-if [ "$#" -ne 4 ]; then
+if [ "$#" -ne 5 ]; then
     echo "Usage: $0 vertices edges output_dir sito"
     exit 1
 fi
 
 v="$1"
-e="$2"
-o="$3"
-s="$4"
+emin="$2"
+emax="$3"
+o="$4"
+s="$5"
 
 echo "Vertices: $v"
 echo "Edges: $e"
@@ -37,7 +38,7 @@ cores=16
 for i in $(seq 0 $(($cores-1))); do
     echo "Starting core $i"
 
-    ./generate_parallel_core.sh "$v" "$e" "$o" "$i" "$cores" "$s" &
+    ./generate_parallel_core.sh "$v" "$emin" "$emax" "$o" "$i" "$cores" "$s" &
 done
 
 wait
@@ -47,4 +48,6 @@ for i in $(seq 0 $(($cores-1))); do
     cat output/"$o"/"$i".out >> output/"$o"/final.out
 done
 
+
+find output/$o -type f ! -name 'final.out' -delete
 
