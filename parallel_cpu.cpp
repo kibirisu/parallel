@@ -36,9 +36,12 @@ bool is_integral_graph(const Eigen::MatrixXd& A, double tol = 1e-6) {
     return true;
 }
 
-const int BATCH_SIZE = 1000;
+const int BATCH_SIZE = 1024* 50;
 
-void process_batch(std::vector<GraphData> &batch) {
+void process_batch(std::vector<GraphData> &batch, std::vector<int> &res) {
+
+
+
     if (batch.empty()) return;
     std::vector<std::string> results(batch.size());
 
@@ -52,16 +55,22 @@ void process_batch(std::vector<GraphData> &batch) {
             integral = is_integral_graph(batch[i].A);
         }
 
-        std::ostringstream oss;
-        oss << "Graph " << batch[i].number << ": "
-            << (integral ? "Integral ✅" : "Not integral ❌");
-        results[i] = oss.str();
+        // std::ostringstream oss;
+        // oss << "Graph " << batch[i].number << ": "
+        //     << (integral ? "Integral ✅" : "Not integral ❌");
+        // results[i] = oss.str();
+        if (integral) 
+
+            res.push_back(batch[i].number);
+            
+        
     }
 
-    for (auto &r : results) {
-        std::cout << r << "\n";
-    }
+    // for (auto &r : results) {
+    //     std::cout << r << "\n";
+    // }
     batch.clear();
+
 }
 
 int main() {
@@ -71,6 +80,8 @@ int main() {
     std::vector<std::string> matrix_lines;
     std::vector<GraphData> batch;
     batch.reserve(BATCH_SIZE);
+
+    std::vector<int> res;
 
     while (std::getline(std::cin, line)) {
         if (line.rfind("Graph", 0) == 0) {
@@ -83,7 +94,7 @@ int main() {
                 matrix_lines.clear();
 
                 if ((int)batch.size() >= BATCH_SIZE) {
-                    process_batch(batch);
+                    process_batch(batch, res);
                 }
             }
             graph_num++;
@@ -106,6 +117,10 @@ int main() {
         batch.push_back({graph_num, order, A});
     }
 
-    process_batch(batch);
+    process_batch(batch,res);
+
+    for (int g : res) {
+        std::cout << g << "\n";
+    }
     return 0;
 }
