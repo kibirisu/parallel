@@ -27,11 +27,20 @@ sito="$6"
 # echo "Total: $suma"
 
 
-for i in $(seq 0 $((1024 / cores))); do
-    idx=$((core * 1024 / $cores + i))
-
-    echo "Starting process $idx"
-    geng "$v" "$e":"$e"  "$i"/1024 -cq | tee output/"$o"/"$core".g6  | showg -a | ./sita/sito1.sh >> output/"$o"/"$core".out 
+for i in $(seq 0 $((1024 / cores - 1))); do
+    idx=$((core * 1024 / cores + i))
+  
+    start_time=$(date +%s%3N)
+  
+    geng "$v" "$e":"$e"  "$idx"/1024 -cq | tee output/"$o"/"$core".g6  | showg -a | ./sita/$sito.sh | ./save.sh output/"$o"/"$core".g6 >> output/"$o"/"$core".out
+  
+  
+    end_time=$(date +%s%3N)
+    elapsed_ms=$((end_time - start_time))
+    mins=$((elapsed_ms / 60000))
+    secs=$(( (elapsed_ms % 60000) / 1000 ))
+    ms=$((elapsed_ms % 1000))
+    echo "Ran geng $v $e:$e $idx/1024 in ${mins}m ${secs}s ${ms}ms"
 done
 
 echo "Core $core finished."

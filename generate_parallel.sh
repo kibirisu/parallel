@@ -16,6 +16,7 @@ echo "Sito: $s"
 echo "Output: $o"
 
 mkdir -p output/$o
+rm -rf output/$o/*
 
 # rm -f "$o".g6 "$o".adj
 # geng "$v" "$e":"$e" -c  | tee "$o".g6 | showg -a  |  awk '!/^Graph/ && NF {printf "%s", $0} /^Graph/ && NR>1 {print ""} END{print ""}' > "$o".adj
@@ -38,4 +39,10 @@ for i in $(seq 0 $(($cores-1))); do
 
     ./generate_parallel_core.sh "$v" "$e" "$o" "$i" "$cores" "$s" &
 done
+
 wait
+
+for i in $(seq 0 $(($cores-1))); do
+
+    cat output/"$o"/"$i".out > output/"$o"/final.out
+done
