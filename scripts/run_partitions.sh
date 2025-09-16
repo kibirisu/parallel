@@ -4,8 +4,10 @@
 N=8                # liczba partii (i równoległych procesów)
 NODES=10           # liczba wierzchołków
 EDGES=8           # liczba krawędzi
-PROG=./sequential.out
+# PROG=./sequential.out
+# PROG=./parallel_gpu.out
 # PROG=./parallel_cpu.out
+PROG=./new_gpu.out
 
 # katalog na wyniki
 # OUTDIR=results_parts
