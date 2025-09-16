@@ -15,23 +15,31 @@ sito="$7"
 
 
       
+start_time=$(date +%s%3N)
 
 
 for i in $(seq 0 $((1024 / cores - 1))); do
-    idx=$((core * 1024 / cores + i))
+    idx=$((core + i * co10res))
   
-    start_time=$(date +%s%3N)
 
-    geng "$v" "$emin":"$emax" "$idx"/1024 -cq | tee output/"$o"/"$core".g6  | showg -a | ./sita/$sito | ./save.sh output/"$o"/"$core".g6 >> output/"$o"/"$core".out
-    # geng "$v" 0:"$e"  "$idx"/1024 -cq | tee output/"$o"/"$core".g6  | showg -a | ./sita/$sito |./save.sh output/"$o"/"$core".g6 >> output/"$o"/"$core".out
-  
-  
+    geng "$v" "$emin":"$emax" "$idx"/1024 -cq | tee output/"$o"/"$core".g6  | showg -a  2>/dev/null | ./sita/$sito | ./save.sh output/"$o"/"$core".g6 >> output/"$o"/"$core".out  2>/dev/null
+ 
+    
+
+
     end_time=$(date +%s%3N)
     elapsed_ms=$((end_time - start_time))
-    mins=$((elapsed_ms / 60000))
-    secs=$(( (elapsed_ms % 60000) / 1000 ))
-    ms=$((elapsed_ms % 1000))
-    echo "Core: $core     ran geng $v $emin:$emax $idx/1024 in ${mins}m ${secs}s ${ms}ms"
-done
 
-echo "Core $core finished."
+    
+    percent=$(( (i+1)*100 * cores / 1024 ))
+
+    echo $percent > output/"$o"/progress_$core
+    # echo "${mins}m ${secs}s ${ms}ms"  >> output/"$o"/progress_$core
+    echo $elapsed_ms >> output/"$o"/progress_$core
+    # echo $percent   > output/"$o"/progress_$core
+
+    # echo "Core: $core     ran geng $v $emin:$emax $idx/1024 in ${mins}m ${secs}s ${ms}ms"
+done
+echo 100 > output/"$o"/progress_$co
+
+# echo "Core $core finished."

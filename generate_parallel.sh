@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+# export OMP_NUM_THREADS=8
 
 if [ "$#" -ne 5 ]; then
     echo "Usage: $0 vertices edges output_dir sito"
@@ -31,17 +33,68 @@ rm -rf output/$o/*
 # done
 # echo "Total: $suma"
 
-trap 'echo "Killing all child processes..."; pkill -P $$; pkill geng; exit 1' INT
 
 cores=16
 
-for i in $(seq 0 $(($cores-1))); do
-    echo "Starting core $i"
 
-    ./generate_parallel_core.sh "$v" "$emin" "$emax" "$o" "$i" "$cores" "$s" &
+
+
+
+monitor() {
+    tput clear
+    while true; do
+        suma=0
+
+        for i in $(seq 0 $((cores-1))); do
+            progress=$(head -n 1 output/$o/progress_$i 2>/dev/null || echo 0)
+            bar=$(printf "%-${progress}s" "#" | tr ' ' '#')
+            elapsed_ms=$(tail -n 1 output/$o/progress_$i 2>/dev/null || echo 0)
+
+            mins=$((elapsed_ms / 60000))
+            secs=$(( (elapsed_ms % 60000) / 1000 ))
+            ms=$((elapsed_ms % 1000))
+
+            suma=$((suma + elapsed_ms))
+            tput cup $i 0
+            printf "Core %d: [%-100s] %3d%%      %dm %ds %dms" "$i" "$bar" "$progress" "$mins" "$secs" "$ms"
+        done
+
+        mins=$((suma / 60000))
+        secs=$(( (suma % 60000) / 1000 ))
+        ms=$((suma % 1000))
+
+        tput cup $(($cores + 1)) 120
+        printf "Total: %dm %ds %dms"  "$mins" "$secs" "$ms"
+
+        sleep 0.01
+    done
+}
+
+
+monitor 2>/dev/null &
+monitor_pid=$!
+disown $monitor_pid
+
+pids=()
+
+trap 'echo "Killing all child processes..."; pkill -P $$; pkill geng; kill -9 $monitor_pid; exit 1' INT
+
+
+
+for i in $(seq 0 $(($cores-1))); do
+    # echo "Starting core $i"
+
+    ./generate_parallel_core.sh "$v" "$emin" "$emax" "$o" "$i" "$cores" "$s" & 
+    pids+=($!) 
 done
 
-wait
+
+wait "${pids[@]}"
+
+sleep 0.2
+
+kill -9 $monitor_pid 2>/dev/null
+
 
 for i in $(seq 0 $(($cores-1))); do
 
@@ -51,3 +104,5 @@ done
 
 find output/$o -type f ! -name 'final.out' -delete
 
+
+echo -e  "\n\n\n\n\n"
