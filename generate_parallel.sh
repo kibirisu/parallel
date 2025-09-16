@@ -32,7 +32,7 @@ rm -rf output/$o/*
 
 trap 'echo "Killing all child processes..."; pkill -P $$; pkill geng; exit 1' INT
 
-cores=4
+cores=16
 
 for i in $(seq 0 $(($cores-1))); do
     echo "Starting core $i"
@@ -44,5 +44,7 @@ wait
 
 for i in $(seq 0 $(($cores-1))); do
 
-    cat output/"$o"/"$i".out > output/"$o"/final.out
+    cat output/"$o"/"$i".out >> output/"$o"/final.out
 done
+
+

@@ -32,7 +32,8 @@ for i in $(seq 0 $((1024 / cores - 1))); do
   
     start_time=$(date +%s%3N)
   
-    geng "$v" "$e":"$e"  "$idx"/1024 -cq | tee output/"$o"/"$core".g6  | showg -a | ./sita/$sito.sh | ./save.sh output/"$o"/"$core".g6 >> output/"$o"/"$core".out
+    geng "$v" "$e":"$e"  "$idx"/1024 -cq | tee output/"$o"/"$core".g6  | showg -a | ./sita/$sito | ./save.sh output/"$o"/"$core".g6 >> output/"$o"/"$core".out
+    # geng "$v" 0:"$e"  "$idx"/1024 -cq | tee output/"$o"/"$core".g6  | showg -a | ./sita/$sito |./save.sh output/"$o"/"$core".g6 >> output/"$o"/"$core".out
   
   
     end_time=$(date +%s%3N)

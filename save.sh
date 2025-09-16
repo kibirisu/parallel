@@ -7,6 +7,7 @@ fi
 
 file="$1"
 
+
 while read -r lineno; do
     sed -n "${lineno}p" "$file"
 done
